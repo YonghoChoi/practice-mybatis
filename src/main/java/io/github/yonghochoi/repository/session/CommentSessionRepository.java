@@ -11,19 +11,32 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class CommentSessionRepository {
-    public SqlSessionFactory getSqlSessionFactory() throws IOException {
+    static SqlSessionFactory sf;
+
+    static {
         String resource = "mybatis-config.xml";
 
         try (InputStream inputStream = Resources.getResourceAsStream(resource)){
-            return new SqlSessionFactoryBuilder().build(inputStream);
+            sf = new SqlSessionFactoryBuilder().build(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 
-    public Comment selectCommentByPrimaryKey(Long commentNo) throws IOException {
-        SqlSessionFactory sf = getSqlSessionFactory();
+    public static Comment selectCommentByPrimaryKey(Long commentNo) throws IOException {
         try(SqlSession sqlSession = sf.openSession()) {
             CommentMapper mapper = sqlSession.getMapper(CommentMapper.class);
             return mapper.selectCommentByPrimaryKey(commentNo);
+        }
+    }
+
+    public static void insertComment(Comment comment) throws IOException {
+        try(SqlSession sqlSession = sf.openSession()) {
+            CommentMapper mapper = sqlSession.getMapper(CommentMapper.class);
+            if(mapper.insertComment(comment) > 0) {
+                sqlSession.commit();
+            }
         }
     }
 }

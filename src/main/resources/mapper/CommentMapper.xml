@@ -12,4 +12,8 @@
         FROM comment
         WHERE comment_no = #{commentNo}
     </select>
+    <insert id="insertComment" parameterType="io.github.yonghochoi.model.Comment">
+        INSERT INTO comment(user_id, comment_content, reg_date)
+        VALUES (#{userId}, #{commentContent}, #{regDate})
+    </insert>
 </mapper>
